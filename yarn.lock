@@ -3136,31 +3136,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"text-editor@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "text-editor@workspace:."
-  dependencies:
-    "@eslint/js": "npm:^9.39.1"
-    "@types/node": "npm:^24.10.1"
-    "@types/react": "npm:^19.2.7"
-    "@types/react-dom": "npm:^19.2.3"
-    "@vitejs/plugin-react": "npm:^5.1.1"
-    eslint: "npm:^9.39.1"
-    eslint-plugin-react-hooks: "npm:^7.0.1"
-    eslint-plugin-react-refresh: "npm:^0.4.24"
-    globals: "npm:^16.5.0"
-    react: "npm:^19.2.0"
-    react-dom: "npm:^19.2.0"
-    typescript: "npm:~5.9.3"
-    typescript-eslint: "npm:^8.48.0"
-    vite: "npm:^7.3.1"
-    vite-plugin-dts: "npm:^4.5.4"
-  peerDependencies:
-    react: ">=18.0.0"
-    react-dom: ">=18.0.0"
-  languageName: unknown
-  linkType: soft
-
 "tinyglobby@npm:^0.2.12, tinyglobby@npm:^0.2.15":
   version: 0.2.15
   resolution: "tinyglobby@npm:0.2.15"
@@ -3447,6 +3422,31 @@ __metadata:
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
   languageName: node
   linkType: hard
+
+"yurich@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "yurich@workspace:."
+  dependencies:
+    "@eslint/js": "npm:^9.39.1"
+    "@types/node": "npm:^24.10.1"
+    "@types/react": "npm:^19.2.7"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:^5.1.1"
+    eslint: "npm:^9.39.1"
+    eslint-plugin-react-hooks: "npm:^7.0.1"
+    eslint-plugin-react-refresh: "npm:^0.4.24"
+    globals: "npm:^16.5.0"
+    react: "npm:^19.2.0"
+    react-dom: "npm:^19.2.0"
+    typescript: "npm:~5.9.3"
+    typescript-eslint: "npm:^8.48.0"
+    vite: "npm:^7.3.1"
+    vite-plugin-dts: "npm:^4.5.4"
+  peerDependencies:
+    react: ">=18.0.0"
+    react-dom: ">=18.0.0"
+  languageName: unknown
+  linkType: soft
 
 "zod-validation-error@npm:^3.5.0 || ^4.0.0":
   version: 4.0.2

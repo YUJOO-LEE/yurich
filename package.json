@@ -20,7 +20,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:demo": "vite build --config vite.config.demo.ts"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
