@@ -1,0 +1,45 @@
+.demo-container {
+  max-width: 800px;
+  margin: 40px auto;
+  font-family: sans-serif;
+}
+
+.demo-editor-wrapper {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.demo-toolbar-wrapper {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.demo-editor {
+  min-height: 200px;
+  padding: 16px;
+  outline: none;
+}
+
+.demo-editor:focus {
+  background: #f9f9ff;
+}
+
+.demo-toolbar-separator {
+  margin: 0 4px;
+  border-left: 1px solid #ccc;
+}
+
+.demo-actions {
+  margin-top: 16px;
+}
+
+.demo-actions button + button {
+  margin-left: 8px;
+}
+
+button[aria-pressed="true"] {
+  font-weight: bold;
+  color: #0070f3;
+}
