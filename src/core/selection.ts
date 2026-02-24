@@ -21,6 +21,14 @@ export const restoreSelection = (range: Range): void => {
   sel.addRange(range);
 };
 
+const collapseToEnd = (sel: Selection, node: Node): void => {
+  const r = document.createRange();
+  r.selectNodeContents(node);
+  r.collapse(false);
+  sel.removeAllRanges();
+  sel.addRange(r);
+};
+
 export const isWithinTag = (tagName: string): boolean => {
   const ctx = getSelectionWithRange();
   if (!ctx) return false;
@@ -128,34 +136,75 @@ export const getClosestBlock = (node: Node): HTMLElement | null => {
   return null;
 };
 
+const getAffectedBlocks = (range: Range): HTMLElement[] => {
+  const startBlock = getClosestBlock(range.startContainer);
+  const endBlock = getClosestBlock(range.endContainer);
+
+  if (!startBlock) return [];
+  if (!endBlock || startBlock === endBlock) return [startBlock];
+
+  // Walk from startBlock to endBlock collecting all blocks
+  const blocks: HTMLElement[] = [];
+  const root = startBlock.closest('[contenteditable="true"]');
+  if (!root) return [startBlock];
+
+  const walker = document.createTreeWalker(
+    root,
+    NodeFilter.SHOW_ELEMENT,
+    {
+      acceptNode(node) {
+        const el = node as HTMLElement;
+        if (!BLOCK_TAGS.has(el.tagName)) return NodeFilter.FILTER_SKIP;
+        if (el.getAttribute('contenteditable') === 'true') return NodeFilter.FILTER_SKIP;
+        // Skip nested blocks inside list items (OL/UL inside LI)
+        if (el.tagName === 'OL' || el.tagName === 'UL') return NodeFilter.FILTER_SKIP;
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    },
+  );
+
+  let collecting = false;
+  let current: Node | null = walker.nextNode();
+  while (current) {
+    if (current === startBlock) collecting = true;
+    if (collecting) blocks.push(current as HTMLElement);
+    if (current === endBlock) break;
+    current = walker.nextNode();
+  }
+
+  return blocks.length > 0 ? blocks : [startBlock];
+};
+
 export const setBlockTag = (tagName: string): void => {
   const ctx = getSelectionWithRange();
   if (!ctx) return;
 
   const { sel, range } = ctx;
-  const block = getClosestBlock(range.startContainer);
-  if (!block || !block.parentNode) return;
+  const blocks = getAffectedBlocks(range);
+  if (blocks.length === 0) return;
 
-  const newBlock = document.createElement(tagName);
+  let lastNewBlock: HTMLElement | null = null;
 
-  // Preserve attributes (including style)
-  for (const attr of Array.from(block.attributes)) {
-    newBlock.setAttribute(attr.name, attr.value);
+  for (const block of blocks) {
+    if (!block.parentNode) continue;
+
+    const newBlock = document.createElement(tagName);
+
+    // Preserve attributes (including style)
+    for (const attr of Array.from(block.attributes)) {
+      newBlock.setAttribute(attr.name, attr.value);
+    }
+
+    // Move children
+    while (block.firstChild) {
+      newBlock.appendChild(block.firstChild);
+    }
+
+    block.parentNode.replaceChild(newBlock, block);
+    lastNewBlock = newBlock;
   }
 
-  // Move children
-  while (block.firstChild) {
-    newBlock.appendChild(block.firstChild);
-  }
-
-  block.parentNode.replaceChild(newBlock, block);
-
-  // Restore cursor inside the new block
-  const newRange = document.createRange();
-  newRange.selectNodeContents(newBlock);
-  newRange.collapse(false);
-  sel.removeAllRanges();
-  sel.addRange(newRange);
+  if (lastNewBlock) collapseToEnd(sel, lastNewBlock);
 };
 
 export const toggleList = (listTag: 'ol' | 'ul'): void => {
@@ -211,13 +260,7 @@ export const toggleList = (listTag: 'ol' | 'ul'): void => {
       }
 
       parent.removeChild(listNode);
-
-      // Restore cursor
-      const newRange = document.createRange();
-      newRange.selectNodeContents(lastInserted);
-      newRange.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
+      collapseToEnd(sel, lastInserted);
     } else {
       // Different list type — swap wrapper tag
       const parent = listNode.parentNode;
@@ -230,32 +273,31 @@ export const toggleList = (listTag: 'ol' | 'ul'): void => {
         newList.appendChild(listNode.firstChild);
       }
       parent.replaceChild(newList, listNode);
-
-      const newRange = document.createRange();
-      newRange.selectNodeContents(newList);
-      newRange.collapse(false);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
+      collapseToEnd(sel, newList);
     }
   } else {
-    // Not in a list — wrap current block in <listTag><li>...</li></listTag>
-    const block = getClosestBlock(range.startContainer);
-    if (!block || !block.parentNode) return;
+    // Not in a list — wrap affected blocks in <listTag><li>...</li></listTag>
+    const blocks = getAffectedBlocks(range);
+    if (blocks.length === 0) return;
 
     const list = document.createElement(listTag);
-    const li = document.createElement('li');
+    const insertionPoint = blocks[0];
+    if (!insertionPoint.parentNode) return;
 
-    while (block.firstChild) {
-      li.appendChild(block.firstChild);
+    // Insert the list before the first block
+    insertionPoint.parentNode.insertBefore(list, insertionPoint);
+
+    for (const block of blocks) {
+      const li = document.createElement('li');
+      while (block.firstChild) {
+        li.appendChild(block.firstChild);
+      }
+      list.appendChild(li);
+      block.parentNode?.removeChild(block);
     }
-    list.appendChild(li);
-    block.parentNode.replaceChild(list, block);
 
-    const newRange = document.createRange();
-    newRange.selectNodeContents(li);
-    newRange.collapse(false);
-    sel.removeAllRanges();
-    sel.addRange(newRange);
+    const lastLi = list.lastElementChild;
+    if (lastLi) collapseToEnd(sel, lastLi);
   }
 };
 
@@ -263,12 +305,15 @@ export const setBlockStyle = (property: string, value: string): void => {
   const ctx = getSelectionWithRange();
   if (!ctx) return;
 
-  const block = getClosestBlock(ctx.range.startContainer);
-  if (!block) return;
+  const blocks = getAffectedBlocks(ctx.range);
+  if (blocks.length === 0) return;
 
   // camelCase → kebab-case: textAlign → text-align
   const kebab = property.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
-  block.style.setProperty(kebab, value);
+
+  for (const block of blocks) {
+    block.style.setProperty(kebab, value);
+  }
 };
 
 export const insertHTMLAtCursor = (html: string): void => {
