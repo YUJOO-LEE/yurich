@@ -1,0 +1,75 @@
+{
+  "name": "yurich",
+  "version": "0.2.0",
+  "description": "A headless rich text editor for React built on native contentEditable and the Selection API",
+  "keywords": [
+    "react",
+    "rich-text",
+    "editor",
+    "wysiwyg",
+    "contenteditable",
+    "headless"
+  ],
+  "license": "MIT",
+  "author": "lee yujoo",
+  "homepage": "https://yujoo-lee.github.io/yurich/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YUJOO-LEE/yurich.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YUJOO-LEE/yurich/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "build:demo": "vite build --config vite.config.demo.ts",
+    "test": "playwright test",
+    "typecheck": "tsc -b",
+    "prepublishOnly": "yarn lint && yarn build && yarn test"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4"
+  }
+}
