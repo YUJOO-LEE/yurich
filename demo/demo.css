@@ -4,6 +4,12 @@
   font-family: sans-serif;
 }
 
+.demo-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
 .demo-editor-wrapper {
   border: 1px solid #ccc;
   border-radius: 8px;

@@ -153,7 +153,12 @@ export function App() {
 
   return (
     <div className="demo-container">
-      <h1>yurich Demo</h1>
+      <header className="demo-header">
+        <h1>yurich Demo</h1>
+        <a href="https://github.com/YUJOO-LEE/yurich" target="_blank" rel="noopener noreferrer">
+          GitHub
+        </a>
+      </header>
       <EditorProvider editor={editor}>
         <div className="demo-editor-wrapper">
           <div className="demo-toolbar-wrapper">
